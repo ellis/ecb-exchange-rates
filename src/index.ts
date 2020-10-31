@@ -1,5 +1,5 @@
 import debugFactory from "debug";
-import { camelCase, lowerCase, memoize } from "lodash";
+import { camelCase, lowerCase, memoize, MemoizedFunction } from "lodash";
 import fetch from "node-fetch";
 import { performance } from "perf_hooks";
 import prettyBytes from "pretty-bytes";
@@ -88,6 +88,8 @@ export interface IEuropeanCentralBankExchangeRatesContructorOptions {
   maxResponseSize?: number;
 }
 
+type FetchUrlFunc = (url: string) => Promise<string>
+
 const HOUR = 1000 * 60 * 60;
 
 const debug = debugFactory("ecb");
@@ -127,7 +129,7 @@ export class EuropeanCentralBankExchangeRates {
   private maxResponseSize: number;
   private interval: ReturnType<typeof setTimeout>;
 
-  private fetchUrl = memoize(async (url: string) => {
+  private fetchUrl: FetchUrlFunc & MemoizedFunction = memoize(async (url: string) => {
     debug("fetching", url);
     const t0 = performance.now();
     const response = await fetch(url, { timeout: this.requestTimeout, size: this.maxResponseSize });
@@ -170,7 +172,7 @@ export class EuropeanCentralBankExchangeRates {
         items[j] = {
           ...otherAttributes,
           period: element.getElementsByTagName("generic:ObsDimension")[0].getAttribute("value"),
-          value: parseFloat(element ?.getElementsByTagName("generic:ObsValue")[0].getAttribute("value") || ""),
+          value: parseFloat(element?.getElementsByTagName("generic:ObsValue")[0].getAttribute("value") || ""),
         };
       }
       const attributes: { [key: string]: string | undefined } = {};
