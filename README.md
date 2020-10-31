@@ -19,7 +19,9 @@ npm i -S ecb-exchange-rates
 ## Usage
 
 ```bash
-import EuropeanCentralBankExchangeRates from 'ecb-exchange-rates'
+import { EuropeanCentralBankExchangeRates } from 'ecb-exchange-rates'
+// OR
+const { EuropeanCentralBankExchangeRates } = require('ecb-exchange-rates')
 
 const ecb = new EuropeanCentralBankExchangeRates()
 

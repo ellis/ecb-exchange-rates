@@ -121,7 +121,7 @@ function formatDate(date: Date) {
   return [year, month, day].join("-");
 }
 
-class EuropeanCentralBankExchangeRates {
+export class EuropeanCentralBankExchangeRates {
   private endpoint: string;
   private requestTimeout: number;
   private maxResponseSize: number;
@@ -238,5 +238,3 @@ class EuropeanCentralBankExchangeRates {
     return JSON.parse(json) as IOutput;
   }
 }
-
-export default EuropeanCentralBankExchangeRates;

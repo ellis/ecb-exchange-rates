@@ -1,5 +1,5 @@
 {
-  "name": "ecb-exchange-rates",
+  "name": "ecbfx",
   "version": "0.0.1",
   "description": "Node.js API for accessing exchange rates from the European Central Bank public API",
   "dependencies": {
@@ -25,12 +25,12 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sempostma/ecb-exchange-rates"
+    "url": "https://github.com/sempostma/ecbfx"
   },
-  "homepage": "https://github.com/sempostma/ecb-exchange-rates",
+  "homepage": "https://github.com/sempostma/ecbfx",
   "bugs": {
-    "email": "ecb-exchange-rates@esstudio.nl",
-    "url": "https://github.com/sempostma/ecb-exchange-rates/issues"
+    "email": "ecbfx@esstudio.nl",
+    "url": "https://github.com/sempostma/ecbfx/issues"
   },
   "scripts": {
     "build": "tsc",
