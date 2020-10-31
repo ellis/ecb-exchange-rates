@@ -1,7 +1,7 @@
 {
   "name": "ecb-exchange-rates",
   "version": "0.0.1",
-  "description": "",
+  "description": "Node.js API for accessing exchange rates from the European Central Bank public API",
   "dependencies": {
     "@types/debug": "^4.1.5",
     "@types/node-fetch": "^2.5.7",
