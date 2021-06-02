@@ -5,7 +5,7 @@ import { performance } from "perf_hooks";
 import prettyBytes from "pretty-bytes";
 import querystring from "querystring";
 import { URL } from "url";
-import { DOMParser } from "xmldom";
+import { parseStringPromise } from 'xml2js'
 
 import Cache from "./cache";
 
@@ -49,25 +49,25 @@ export interface IOutput {
 }
 
 export interface IDatum {
-    timeFormat: string;
-    sourceAgency: string;
-    unitMult: string;
-    title: string;
-    titleCompl: string;
-    collection: string;
-    unit: string;
-    decimals: string;
-    items: IItem[];
-    compilation?: string;
+  timeFormat: string;
+  sourceAgency: string;
+  unitMult: string;
+  title: string;
+  titleCompl: string;
+  collection: string;
+  unit: string;
+  decimals: string;
+  items: IItem[];
+  compilation?: string;
 }
 
 export interface IItem {
-    period: string;
-    value: number;
+  period: string;
+  value: number;
 }
 
 export interface IMeta {
-    url: string;
+  url: string;
 }
 
 export interface IOptions {
@@ -93,8 +93,6 @@ type FetchUrlFunc = (url: string) => Promise<string>
 const HOUR = 1000 * 60 * 60;
 
 const debug = debugFactory("ecb");
-
-const parser = new DOMParser();
 
 const defaultOptions = {
   fromCurrency: "EUR",
@@ -148,44 +146,43 @@ export class EuropeanCentralBankExchangeRates {
       });
     }
     debug(`processing result set...`);
-    const data = parser.parseFromString(xml, "text/xml");
-    const series = data.getElementsByTagName("generic:Series");
+    const data = await parseStringPromise(xml);
+    const series = data['message:GenericData']['message:DataSet'][0]['generic:Series']
     const result = new Array(series.length);
     for (let i = 0; i < series.length; i++) {
       const seriesItem = series[i];
-      const elements = seriesItem.getElementsByTagName("generic:Obs");
+      const elements = seriesItem['generic:Obs'];
       const items = new Array(elements.length);
       for (let j = 0; j < elements.length; j++) {
         const element = elements[j];
-        const valueElements = element.getElementsByTagName("generic.Value");
+        const valueElements = element['generic:Attributes'][0]['generic:Value'];
         const otherAttributes: { [key: string]: string | undefined } = {};
         // tslint:disable-next-line: prefer-for-of
         for (let k = 0; k < valueElements.length; k++) {
           const valueElement = valueElements[k];
-          const id = valueElement.getAttribute("id");
+          const id = valueElement['$']['id']
           if (!id) { continue; }
           const key = camelCase(lowerCase(id));
-          const value = valueElement.getAttribute("value");
+          const value = valueElement['$']['value']
           if (!value) { continue; }
           otherAttributes[key] = value;
         }
         items[j] = {
           ...otherAttributes,
-          period: element.getElementsByTagName("generic:ObsDimension")[0].getAttribute("value"),
-          value: parseFloat(element?.getElementsByTagName("generic:ObsValue")[0].getAttribute("value") || ""),
+          period: element["generic:ObsDimension"][0]['$']['value'],
+          value: parseFloat(element['generic:ObsValue'][0]['$']['value'] || ''),
         };
       }
       const attributes: { [key: string]: string | undefined } = {};
       const headerElements = seriesItem
-        .getElementsByTagName("generic:Attributes")[0]
-        .getElementsByTagName("generic:Value");
+        ['generic:Attributes'][0]['generic:Value']
       // tslint:disable-next-line: prefer-for-of
       for (let j = 0; j < headerElements.length; j++) {
         const element = headerElements[j];
-        const id = element.getAttribute("id");
+        const id = element['$']['id']
         if (!id) { continue; }
         const key = camelCase(lowerCase(id));
-        const value = element.getAttribute("value");
+        const value = element['$']['value'];
         if (!value) { continue; }
         attributes[key] = value;
       }
